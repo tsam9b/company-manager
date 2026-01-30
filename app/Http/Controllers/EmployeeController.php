@@ -85,9 +85,17 @@ class EmployeeController extends AbstractController
         $sortDir = strtolower((string) $request->query('sort_dir', 'asc'));
         $sortDir = in_array($sortDir, ['asc', 'desc'], true) ? $sortDir : 'asc';
 
+        // Start with base query and eager-load company relation
         $query = $this->class::query()->with('getCompany');
 
-        if (is_string($sortBy) && $sortBy !== '') {
+        // Special-case: allow sorting by related company name
+        if (is_string($sortBy) && $sortBy === 'company') {
+            // Join the company table and order by company.name
+            // Ensure we select employee.* so Eloquent returns Employee models
+            $query->leftJoin('company', 'employee.company_id', '=', 'company.id')
+                  ->select('employee.*')
+                  ->orderBy('company.name', $sortDir);
+        } elseif (is_string($sortBy) && $sortBy !== '') {
             $model = new $this->class();
             $allowed = array_unique(array_merge(
                 ['id', 'created_at', 'updated_at'],

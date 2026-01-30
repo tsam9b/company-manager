@@ -15,7 +15,7 @@ const { t } = useI18n();
 const columns = computed(() => [
 	{ key: 'first_name', label: t('employee.firstName'), sortable: true },
 	{ key: 'last_name', label: t('employee.lastName'), sortable: true },
-	{ key: 'company', label: t('employee.company'), sortable: false },
+	{ key: 'company', label: t('employee.company'), sortable: true },
 	{ key: 'email', label: t('employee.email'), sortable: true },
 	{ key: 'phone', label: t('employee.phone'), sortable: true },
 ]);
@@ -108,8 +108,8 @@ const handleDelete = async () => {
 										:href="`/company/${row.get_company.id}`"
 										class="text-indigo-400 hover:text-indigo-300"
 									>
-										{{ row.get_company.name }}
-									</Link>
+									{{ row.get_company.name }}
+								</Link>
 							</span>
 							<span v-else>-</span>
 						</template>
