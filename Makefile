@@ -1,34 +1,54 @@
-dev:
-	npm run dev
+.PHONY: up down build restart logs ps shell bash migrate seed test test-mail config-clear cache-clear assets install
 
-serve:
-	php artisan serve
+COMPOSE ?= docker compose
+APP_SERVICE ?= app
 
-migrate:
-	php artisan migrate
+up:
+	$(COMPOSE) up --build -d
 
-migrate-status:
-	php artisan migrate:status
+down:
+	$(COMPOSE) down
 
-seed:
-	php artisan db:seed
+build:
+	$(COMPOSE) build
 
-link:
-	php artisan storage:link
-
-test:
-	php artisan test
-
-dev-full:
-	@echo "Starting Laravel development services..."
-	@echo "Open multiple terminals and run:"
-	@echo "  Terminal 1: make serve"
-	@echo "  Terminal 2: make dev"
-	@echo "  Terminal 3: make queue (optional)"
-	@echo "  Terminal 4: make logs (optional)"
-
-queue:
-	php artisan queue:listen --tries=1
+restart:
+	$(COMPOSE) down
+	$(COMPOSE) up --build -d
 
 logs:
-	php artisan pail --timeout=0
+	$(COMPOSE) logs -f
+
+ps:
+	$(COMPOSE) ps
+
+shell:
+	$(COMPOSE) exec $(APP_SERVICE) sh
+
+bash:
+	$(COMPOSE) exec $(APP_SERVICE) bash
+
+migrate:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate
+
+seed:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan db:seed
+
+test:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan test
+
+test-mail:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan test --filter CompanyMailhogIntegrationTest
+
+config-clear:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan config:clear
+
+cache-clear:
+	$(COMPOSE) exec $(APP_SERVICE) php artisan cache:clear
+
+assets:
+	$(COMPOSE) exec node sh -c "npm install && npm run build"
+
+install:
+	$(COMPOSE) exec $(APP_SERVICE) composer install --no-interaction --prefer-dist --optimize-autoloader
+

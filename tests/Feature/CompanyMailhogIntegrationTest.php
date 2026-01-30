@@ -14,27 +14,45 @@ class CompanyMailhogIntegrationTest extends TestCase
 
     public function test_company_creation_delivers_email_to_mailhog(): void
     {
-        // Quick check: is MailHog API reachable? If not, skip this integration test.
+        // Determine which mail catcher is available: MailHog (8025) or MailCatcher (1080)
+        $service = null;
         try {
-            $health = Http::timeout(2)->get('http://127.0.0.1:8025/api/v2/messages');
+            $resp = Http::timeout(2)->get('http://127.0.0.1:8025/api/v2/messages');
+            if ($resp->ok()) {
+                $service = 'mailhog';
+            }
         } catch (\Exception $e) {
-            $this->markTestSkipped('Mailhog not available at http://127.0.0.1:8025 - skipping integration test.');
+            // ignore
+        }
+
+        if (! $service) {
+            try {
+                $resp = Http::timeout(2)->get('http://127.0.0.1:1080/messages.json');
+                if ($resp->ok()) {
+                    $service = 'mailcatcher';
+                }
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
+
+        if (! $service) {
+            $this->markTestSkipped('No MailHog or MailCatcher instance detected (checked 127.0.0.1:8025 and 127.0.0.1:1080) - skipping integration test.');
             return;
         }
 
-        if ($health->failed()) {
-            $this->markTestSkipped('Mailhog API not reachable - skipping integration test.');
-            return;
-        }
-
-        // Clear existing messages in MailHog
+        // Clear existing messages (best-effort)
         try {
-            Http::delete('http://127.0.0.1:8025/api/v1/messages');
+            if ($service === 'mailhog') {
+                Http::delete('http://127.0.0.1:8025/api/v1/messages');
+            } else {
+                Http::delete('http://127.0.0.1:1080/messages');
+            }
         } catch (\Exception $e) {
-            // ignore; we'll still try
+            // ignore
         }
 
-        // Configure Laravel mailer to use MailHog's SMTP
+        // Configure Laravel mailer to use local SMTP (both MailHog and MailCatcher listen on 1025)
         Config::set('mail.default', 'smtp');
         Config::set('mail.mailers.smtp.transport', 'smtp');
         Config::set('mail.mailers.smtp.host', '127.0.0.1');
@@ -60,38 +78,51 @@ class CompanyMailhogIntegrationTest extends TestCase
         $response = $this->post('/company', $payload);
         $response->assertStatus(201);
 
-        // Poll MailHog API for up to ~5 seconds for the expected message
+        // Poll the appropriate API for up to ~5 seconds for the expected message
         $found = false;
         $attempts = 0;
         while ($attempts++ < 25) {
             try {
-                $resp = Http::timeout(2)->get('http://127.0.0.1:8025/api/v2/messages');
-            } catch (\Exception $e) {
-                usleep(200000);
-                continue;
-            }
+                if ($service === 'mailhog') {
+                    $resp = Http::timeout(2)->get('http://127.0.0.1:8025/api/v2/messages');
+                    if (! $resp->ok()) { usleep(200000); continue; }
 
-            if (! $resp->ok()) {
-                usleep(200000);
-                continue;
-            }
+                    $items = $resp->json('items', []);
+                    foreach ($items as $item) {
+                        $subject = $item['Content']['Headers']['Subject'][0] ?? '';
+                        $headersTo = $item['Content']['Headers']['To'][0] ?? '';
 
-            $items = $resp->json('items', []);
-            foreach ($items as $item) {
-                $subject = $item['Content']['Headers']['Subject'][0] ?? '';
-                $headersTo = $item['Content']['Headers']['To'][0] ?? '';
+                        if (strpos($subject, 'New company created') !== false
+                            && strpos($headersTo, 'integration@test.local') !== false) {
+                            $found = true;
+                            break 2;
+                        }
+                    }
+                } else {
+                    // MailCatcher: /messages.json returns an array of messages
+                    $resp = Http::timeout(2)->get('http://127.0.0.1:1080/messages.json');
+                    if (! $resp->ok()) { usleep(200000); continue; }
 
-                if (strpos($subject, 'New company created') !== false
-                    && strpos($headersTo, 'integration@test.local') !== false) {
-                    $found = true;
-                    break 2;
+                    $items = $resp->json() ?: [];
+                    foreach ($items as $item) {
+                        $subject = $item['subject'] ?? ($item['mime']['headers']['subject'][0] ?? '');
+                        $recipients = $item['recipients'] ?? ($item['mime']['headers']['to'][0] ?? '');
+
+                        if (strpos($subject, 'New company created') !== false
+                            && strpos($recipients, 'integration@test.local') !== false) {
+                            $found = true;
+                            break 2;
+                        }
+                    }
                 }
+            } catch (\Exception $e) {
+                // ignore and retry
             }
 
             usleep(200000);
         }
 
-        $this->assertTrue($found, 'Expected email not found in Mailhog within timeout. Make sure Mailhog is running on 127.0.0.1:8025 and SMTP on 127.0.0.1:1025.');
+        $this->assertTrue($found, 'Expected email not found in MailHog/MailCatcher within timeout. Make sure MailHog (127.0.0.1:8025) or MailCatcher (127.0.0.1:1080) is running and SMTP on 127.0.0.1:1025.');
     }
 }
 

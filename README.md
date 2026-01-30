@@ -114,3 +114,46 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Docker (development with MailCatcher)
+
+A simple Docker Compose setup is included to run the application and MailCatcher for local email testing.
+
+Start the stack:
+
+```bash
+# build and start containers
+docker compose up --build -d
+
+# open the app at http://127.0.0.1:8000
+# open MailCatcher UI at http://127.0.0.1:1080
+```
+
+Notes:
+- MailCatcher listens on SMTP port 1025 and the web UI at 1080.
+- The app service mounts the project directory into the container and runs `php artisan serve` on port 8000.
+- Environment variables for mail are set in `docker-compose.yml` (MAIL_HOST=mailcatcher, MAIL_PORT=1025).
+
+To stop the stack:
+
+```bash
+docker compose down
+```
+
+# Implementations
+
+- ✅ Basic Laravel Auth (login/logout). Registration is disabled in routes; login works via auth controllers.
+- ✅ Admin seed user (admin@admin.com / password).
+- ✅ CRUD for Companies and Employees. UI pages exist and API endpoints handle create/read/update/delete.
+- ✅ Companies table fields (name, email, logo, website) in migration.
+- ✅ Employees table fields (first name, last name, company_id, email, phone) in migration.
+- ✅ Migrations created for both schemas.
+- ✅ Company logos stored on public disk and served via /storage (public/storage exists; Storage::url used).
+- ✅ Resource controllers with default methods. Routes now use `Route::resource` with standard controller methods.
+- ✅ Validation via Request classes. Dedicated FormRequest classes for company/employee.
+- ✅ Pagination (10 per page) via paginate() and UI defaultPerPage=10.
+- ✅ Starter kit auth + theme; registration removed (register routes commented, canRegister false).
+- ✅ Multilanguage via lang folder implemented (JSON files in resources/lang used by vue-i18n).
+- ✅ PHPUnit tests present (Feature tests for Company/Employee/Profile/Auth).
+
+- Dummy data are imported via seeders for testing.
