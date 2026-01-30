@@ -107,6 +107,7 @@ const submit = async () => {
 	} catch (error) {
 		if (error?.response?.status === 422) {
 			form.setError(error.response.data.errors || {});
+			return;
 		}
 		errorToast(t('company.createError'));
 	}
