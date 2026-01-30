@@ -49,8 +49,6 @@ npm run dev
 php artisan serve
 ```
 
-Open http://127.0.0.1:8000 and log in with the seeded admin user if needed.
-
 ### Common Commands
 - Run tests:
 
