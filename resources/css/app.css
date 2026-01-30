@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.data-table-component th{
+    text-align:left;
+}
+
+.company-select-field {
+    background-color: rgb(10, 59, 78);
+}

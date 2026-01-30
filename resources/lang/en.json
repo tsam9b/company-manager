@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "companies": "Companies",
+    "employees": "Employees",
+    "profile": "Profile",
+    "logout": "Log Out"
+  },
+  "buttons": {
+    "addCompany": "Add Company",
+    "addEmployee": "Add Employee",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "view": "View",
+    "createCompany": "Create Company",
+    "updateCompany": "Save Changes",
+    "createEmployee": "Create Employee",
+    "updateEmployee": "Save Changes",
+    "backToCompanies": "Back to Companies",
+    "backToEmployees": "Back to Employees"
+  },
+  "table": {
+    "rowsPerPage": "Rows per page",
+    "showing": "Showing {from} to {to} of {total} results",
+    "prev": "Prev",
+    "next": "Next",
+    "loading": "Loading...",
+    "empty": "No records found."
+  },
+  "company": {
+    "title": "Companies",
+    "name": "Name",
+    "email": "Email",
+    "logo": "Logo",
+    "website": "Website",
+    "deleteTitle": "Delete company",
+    "deleteConfirm": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "createTitle": "Create Company",
+    "editTitle": "Edit Company",
+    "logoHint": "Minimum 100x100",
+    "logoHelp": "Drag & drop or click to upload",
+    "logoPreview": "Preview",
+    "created": "Company created successfully.",
+    "updated": "Company updated successfully.",
+    "createError": "Failed to create company. Please check the form and try again.",
+    "updateError": "Failed to update company. Please check the form and try again."
+  },
+  "employee": {
+    "title": "Employees",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "deleteTitle": "Delete employee",
+    "deleteConfirm": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "createTitle": "Create Employee",
+    "editTitle": "Edit Employee",
+    "created": "Employee created successfully.",
+    "updated": "Employee updated successfully.",
+    "createError": "Failed to create employee. Please check the form and try again.",
+    "updateError": "Failed to update employee. Please check the form and try again."
+  },
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "greek": "Greek"
+  }
+}
