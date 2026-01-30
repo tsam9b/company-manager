@@ -46,7 +46,7 @@ services:
 
   node:
     image: node:20-alpine
-    container_name: acme-donations-node
+    container_name: companies-manager-node
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
@@ -56,7 +56,7 @@ services:
 
   mailcatcher:
     image: schickling/mailcatcher
-    container_name: acme-donations-mailcatcher
+    container_name: companies-manager-mailcatcher
     restart: unless-stopped
     ports:
       - "1080:1080"  # Web interface
