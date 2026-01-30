@@ -41,6 +41,8 @@
     "logoHint": "Minimum 100x100",
     "logoHelp": "Drag & drop or click to upload",
     "logoPreview": "Preview",
+    "logoMinError": "Logo must be at least 100x100 pixels.",
+    "logoInvalid": "Logo must be a valid image file.",
     "created": "Company created successfully.",
     "updated": "Company updated successfully.",
     "createError": "Failed to create company. Please check the form and try again.",

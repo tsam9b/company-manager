@@ -31,10 +31,39 @@ const logoInput = ref(null);
 const logoPreview = ref('');
 const logoFile = ref(null);
 const logoDisplay = computed(() => logoPreview.value || props.company.logo || '');
+const MIN_LOGO_SIZE = 100;
 
-const handleLogoFiles = (files) => {
+const validateLogoFile = (file) => new Promise((resolve) => {
+	const objectUrl = URL.createObjectURL(file);
+	const img = new Image();
+	img.onload = () => {
+		const isValid = img.width >= MIN_LOGO_SIZE && img.height >= MIN_LOGO_SIZE;
+		URL.revokeObjectURL(objectUrl);
+		if (!isValid) {
+			form.setError('logo', t('company.logoMinError'));
+			logoFile.value = null;
+			logoPreview.value = '';
+			resolve(false);
+			return;
+		}
+		resolve(true);
+	};
+	img.onerror = () => {
+		URL.revokeObjectURL(objectUrl);
+		form.setError('logo', t('company.logoInvalid'));
+		logoFile.value = null;
+		logoPreview.value = '';
+		resolve(false);
+	};
+	img.src = objectUrl;
+});
+
+const handleLogoFiles = async (files) => {
 	const file = files?.[0];
 	if (!file) return;
+	form.clearErrors('logo');
+	const isValid = await validateLogoFile(file);
+	if (!isValid) return;
 	logoFile.value = file;
 	const reader = new FileReader();
 	reader.onload = () => {
@@ -44,13 +73,13 @@ const handleLogoFiles = (files) => {
 };
 
 const onLogoChange = (event) => {
-	handleLogoFiles(event.target.files);
+	void handleLogoFiles(event.target.files);
 };
 
 const onDrop = (event) => {
 	event.preventDefault();
 	isDragOver.value = false;
-	handleLogoFiles(event.dataTransfer.files);
+	void handleLogoFiles(event.dataTransfer.files);
 };
 
 const onDragOver = () => {
@@ -66,6 +95,9 @@ const openLogoPicker = () => {
 };
 
 const submit = async () => {
+	if (form.errors.logo) {
+		return;
+	}
 	form.clearErrors();
 	try {
 		const payload = new FormData();
