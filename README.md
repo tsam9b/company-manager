@@ -73,7 +73,7 @@ php artisan migrate:fresh --seed
 - ✅ Employees table fields (first name, last name, company_id, email, phone) in migration.
 - ✅ Migrations created for both schemas.
 - ✅ Company logos stored on public disk and served via /storage (public/storage exists; Storage::url used).
-- ✅ Resource controllers with default methods. Routes now use `Route::resource` with standard controller methods.
+- ✅ Resource controllers with default methods.
 - ✅ Validation via Request classes. Dedicated FormRequest classes for company/employee.
 - ✅ Pagination (10 per page) via paginate() and UI defaultPerPage=10.
 - ✅ Starter kit auth + theme; registration removed (register routes commented, canRegister false).
