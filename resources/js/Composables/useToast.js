@@ -1,8 +1,10 @@
-import { reactive, readonly } from 'vue';
+import { computed, reactive } from 'vue';
 
 const state = reactive({
 	toasts: [],
 });
+
+const toasts = computed(() => state.toasts);
 
 let counter = 0;
 
@@ -34,7 +36,7 @@ const info = (message, timeout) => addToast(message, 'info', timeout);
 
 export function useToast() {
 	return {
-		toasts: readonly(state).toasts,
+		toasts,
 		addToast,
 		removeToast,
 		success,
